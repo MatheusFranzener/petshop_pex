@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "70356644075",
+    "project_id": "petshop-pex",
+    "storage_bucket": "petshop-pex.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:70356644075:android:c142fdc912fa13d33cceae",
+        "android_client_info": {
+          "package_name": "com.example.petshop_pex"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlEaEEwqC9Hnak5_gGwU5j3TmAA7fjJZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
