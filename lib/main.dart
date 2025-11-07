@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+
+import 'features/auth/controller/auth_controller.dart';
+import 'features/auth/pages/login.dart';
+import 'features/pet/pages/home.dart';
+import 'features/pet/pages/cadastro_pet.dart';
+
 import 'firebase_options.dart';
+import 'core/routes/app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const MyApp());
 }
 
@@ -16,9 +23,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(child: Text('Firebase conectado!')),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        // Login é a primeira tela
+        home: const LoginPage(),
+        routes: {
+          AppRoutes.home: (ctx) => const HomePage(),
+          AppRoutes.cadastroPet: (ctx) => const CadastroPetPage(),
+        },
       ),
     );
   }
