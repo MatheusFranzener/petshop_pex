@@ -1,12 +1,26 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:petshop_pex/features/pet/pages/home.dart';  // Adicionar essa importação
-
+import 'package:petshop_pex/features/admin/home_admin.dart';
+import 'package:petshop_pex/features/auth/repository/auth_repository.dart';
+import 'package:petshop_pex/features/pet/pages/home.dart';
 
 class AuthController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final AuthRepository _authRepository = AuthRepository();
 
   bool isLoading = false;
+
+  Future<bool> isCurrentUserAdmin() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    if (!doc.exists) return false;
+
+    final data = doc.data();
+    return (data?['isAdmin'] as bool?) ?? false;
+  }
 
   // Função para login
   Future<void> login(String email, String senha, BuildContext context) async {
@@ -14,15 +28,36 @@ class AuthController extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      // Tenta fazer login
-      await _auth.signInWithEmailAndPassword(email: email, password: senha);
-
-      // Se o login for bem-sucedido, redireciona para a HomePage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+      final cred = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: senha,
       );
 
+      final uid = cred.user!.uid;
+
+      final snap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      final isAdmin = (snap.data()?['isAdmin'] as bool?) ?? false;
+
+      if (context.mounted) {
+        if (isAdmin) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeAdmin(
+              useMock: true,
+              skipGate: true,
+            )),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+          );
+        }
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: $e')),
@@ -39,10 +74,8 @@ class AuthController extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      // Cria o usuário no Firebase
-      await _auth.createUserWithEmailAndPassword(email: email, password: senha);
+      await _authRepository.cadastrar(email, senha);
 
-      // Notifica o sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuário cadastrado com sucesso!')),
       );

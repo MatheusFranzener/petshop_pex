@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:petshop_pex/features/admin/home_admin.dart';
+import 'package:petshop_pex/features/admin/visualizar_clientes_pets.dart';
 import 'package:provider/provider.dart';
 
 import 'features/auth/controller/auth_controller.dart';
@@ -34,6 +36,8 @@ class MyApp extends StatelessWidget {
         routes: {
           AppRoutes.home: (ctx) => const HomePage(),
           AppRoutes.cadastroPet: (ctx) => const CadastroPetPage(),
+          AppRoutes.agendamentos: (ctx) => const HomeAdmin(),
+          AppRoutes.clientesPets: (ctx) => const ClientesPetsPage(),
         },
       ),
     );

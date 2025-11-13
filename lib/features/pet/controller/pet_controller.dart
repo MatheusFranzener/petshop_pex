@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PetController extends ChangeNotifier {
@@ -17,7 +17,7 @@ class PetController extends ChangeNotifier {
 
       // Se houver imagem, faz upload no Firebase Storage
       if (imagemPet != null) {
-        final ref = firebase_storage.FirebaseStorage.instance
+        final ref = FirebaseStorage.instance
             .ref()
             .child('pets/${DateTime.now().millisecondsSinceEpoch}.png');
         await ref.putFile(imagemPet);
@@ -35,7 +35,7 @@ class PetController extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pet cadastrado com sucesso!')),
       );
-      // Redireciona para a Home
+
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

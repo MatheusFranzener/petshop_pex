@@ -30,20 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # Estado / Firebase que você já usa
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
+  firebase_storage: ^13.0.4
   cloud_firestore: ^6.0.2
   provider: ^6.1.0
   cupertino_icons: ^1.0.8
-
-  # >>> ADICIONE ESTAS <<<
   image_picker: ^1.1.1
   path_provider: ^2.1.4
   shared_preferences: ^2.2.3
-
-
 
 dev_dependencies:
   flutter_test:

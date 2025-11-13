@@ -4,7 +4,7 @@ class PetRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Função para salvar o pet
-  Future<void> salvarPet(String nome, String idade, String raca, String porte, String imageUrl) async {
+  Future<void> salvarPet(String nome, String idade, String raca, String porte, String imageUrl, String uid) async {
     try {
       await _firestore.collection('pets').add({
         'nome': nome,
@@ -12,6 +12,7 @@ class PetRepository {
         'raca': raca,
         'porte': porte,
         'imageUrl': imageUrl,
+        'uid': uid,
       });
     } catch (e) {
       print('Erro ao salvar pet: $e');
