@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -65,4 +62,15 @@ class DefaultFirebaseOptions {
     storageBucket: 'petshop-pex.firebasestorage.app',
     iosBundleId: 'com.example.petshopPex',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAZKPiQlKQ5F9xp_LIUxwST_frzHASJ9os',
+    appId: '1:70356644075:web:1951afb1d9488be53cceae',
+    messagingSenderId: '70356644075',
+    projectId: 'petshop-pex',
+    authDomain: 'petshop-pex.firebaseapp.com',
+    storageBucket: 'petshop-pex.firebasestorage.app',
+    measurementId: 'G-N3GKTF86MW',
+  );
+
 }

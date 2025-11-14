@@ -14,9 +14,7 @@ import 'core/routes/app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -26,18 +24,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthController()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => AuthController())],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+
+        // 🔹 TEMA GLOBAL (appbar com título centralizado)
+        theme: ThemeData(appBarTheme: const AppBarTheme(centerTitle: true)),
+
         // Login é a primeira tela
         home: const LoginPage(),
         routes: {
           AppRoutes.home: (ctx) => const HomePage(),
           AppRoutes.cadastroPet: (ctx) => const CadastroPetPage(),
-          AppRoutes.agendamentos: (ctx) => const HomeAdmin(),
+
+          // ADMIN
+          AppRoutes.agendamentosAdmin: (ctx) => const HomeAdmin(),
           AppRoutes.clientesPets: (ctx) => const ClientesPetsPage(),
+
+          // CLIENTE
         },
       ),
     );

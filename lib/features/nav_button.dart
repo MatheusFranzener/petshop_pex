@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:petshop_pex/core/routes/app_routes.dart';
 import 'package:provider/provider.dart';
-import './auth/controller/auth_controller.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
 
 class FloatingNavButton extends StatelessWidget {
   const FloatingNavButton({super.key});
@@ -19,7 +19,8 @@ class FloatingNavButton extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data == false) {
-          return const SizedBox();  // Se não for admin, não exibe o botão
+          // Se não for admin, não exibe o botão
+          return const SizedBox();
         }
 
         return FloatingActionButton(
@@ -41,9 +42,12 @@ class FloatingNavButton extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           children: [
             _buildMenuItem(context, 'Meus Pets', AppRoutes.home),
-            //_buildMenuItem(context, 'Serviços', AppRoutes.servicos),
-            //_buildMenuItem(context, 'Lembretes', AppRoutes.lembretes),
-            _buildMenuItem(context, 'Agendamentos Clientes', AppRoutes.agendamentos),
+            // ADMIN
+            _buildMenuItem(
+              context,
+              'Agendamentos Clientes',
+              AppRoutes.agendamentosAdmin, // <- aqui trocou
+            ),
             _buildMenuItem(context, 'Clientes e Pets', AppRoutes.clientesPets),
           ],
         );

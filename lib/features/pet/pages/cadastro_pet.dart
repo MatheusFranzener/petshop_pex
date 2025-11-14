@@ -38,10 +38,9 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
     if (_nome.text.isEmpty ||
         _idade.text.isEmpty ||
         _raca.text.isEmpty ||
-        _porte.text.isEmpty ||
-        _image == null) {
+        _porte.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preencha todos os campos e escolha uma foto.')),
+        const SnackBar(content: Text('Preencha todos os campos.')),
       );
       return;
     }
@@ -52,8 +51,10 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
       idade: _idade.text.trim(),
       raca: _raca.text.trim(),
       porte: _porte.text.trim(),
-      imagePath: _image!.path,
+      // foto AGORA é OPCIONAL
+      imagePath: _image?.path ?? '',
     );
+
     await _repo.add(pet);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -66,7 +67,10 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.yellow, title: const Text('Cadastro Pet')),
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        title: const Text('Cadastro Pet'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -80,7 +84,10 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.grey.shade300,
                     image: _image != null
-                        ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover)
+                        ? DecorationImage(
+                            image: FileImage(_image!),
+                            fit: BoxFit.cover,
+                          )
                         : null,
                   ),
                   child: _image == null
@@ -90,15 +97,33 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(decoration: const InputDecoration(labelText: 'Nome do Pet'), controller: _nome),
-            TextField(decoration: const InputDecoration(labelText: 'Idade'), controller: _idade),
-            TextField(decoration: const InputDecoration(labelText: 'Raça'), controller: _raca),
-            TextField(decoration: const InputDecoration(labelText: 'Porte'), controller: _porte),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Nome do Pet'),
+              controller: _nome,
+            ),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Idade'),
+              controller: _idade,
+            ),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Raça'),
+              controller: _raca,
+            ),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Porte'),
+              controller: _porte,
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _salvar,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: const Size.fromHeight(48)),
-              child: const Text('Finalizar Cadastro', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                minimumSize: const Size.fromHeight(48),
+              ),
+              child: const Text(
+                'Finalizar Cadastro',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
