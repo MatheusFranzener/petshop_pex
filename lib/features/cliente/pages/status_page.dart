@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 
-import '../models/pet_model.dart';
+import '../../pet/models/pet_model.dart';
 
 class StatusPage extends StatelessWidget {
   final Pet pet;
-  final String servico; // ex: "Banho"
+  final String servico;
   final int etapa; // 0 = Chegou, 1 = Em processo, 2 = Finalizado
   final List<String> historico; // comentários do serviço
 
@@ -25,12 +27,20 @@ class StatusPage extends StatelessWidget {
         backgroundColor: Colors.yellow,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // CABEÇALHO AMARELO COM FOTO E DADOS DO PET
             Container(
               color: Colors.yellow,
               padding: const EdgeInsets.all(16),
@@ -68,7 +78,6 @@ class StatusPage extends StatelessWidget {
               ),
             ),
 
-            // BARRA AZUL COM NOME DO SERVIÇO
             Container(
               color: Colors.blue,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -85,7 +94,6 @@ class StatusPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // STATUS PROGRESSIVO
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _StatusSteps(etapaAtual: etapa),
@@ -93,7 +101,6 @@ class StatusPage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // HISTÓRICO
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -139,7 +146,6 @@ class StatusPage extends StatelessWidget {
   }
 }
 
-/// Barra de progresso: Chegou / Em processo / Finalizado
 class _StatusSteps extends StatelessWidget {
   final int etapaAtual; // 0 chegou, 1 em processo, 2 finalizado
 
@@ -183,11 +189,11 @@ class _StatusSteps extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isDone
                         ? Colors
-                              .blue // etapas concluídas
+                              .blue
                         : isCurrent
                         ? Colors
-                              .yellow // etapa atual
-                        : Colors.grey.shade300, // não começou
+                              .yellow
+                        : Colors.grey.shade300,
                   ),
                 ),
               );

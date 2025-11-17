@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:petshop_pex/features/admin/home_admin.dart';
+import 'package:petshop_pex/features/admin/pages/home_admin.dart';
+import 'package:petshop_pex/features/auth/pages/login.dart';
 import 'package:petshop_pex/features/auth/repository/auth_repository.dart';
 import 'package:petshop_pex/features/pet/pages/home.dart';
 
@@ -10,6 +11,15 @@ class AuthController extends ChangeNotifier {
   final AuthRepository _authRepository = AuthRepository();
 
   bool isLoading = false;
+
+  Future<void> logout(BuildContext context) async {
+    await _auth.signOut();
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
+    );
+  }
 
   Future<bool> isCurrentUserAdmin() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -47,7 +57,7 @@ class AuthController extends ChangeNotifier {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomeAdmin(
-              useMock: true,
+              useMock: false,
               skipGate: true,
             )),
           );

@@ -1,15 +1,14 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
 import 'package:petshop_pex/features/nav_button.dart';
+import 'package:provider/provider.dart';
 
 import '../models/pet_model.dart';
 import '../repository/pet_local_repository.dart';
 import 'cadastro_pet.dart';
 import 'detalhes_pet.dart';
-import 'servicos_cliente.dart';
-// import 'status_page.dart'; // <-- NÃO PRECISA MAIS AQUI
-import 'status_pets_page.dart'; // usa essa
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -49,73 +48,6 @@ class _HomePageState extends State<HomePage> {
     if (changed == true) _loadPets();
   }
 
-  void _goToServicosCliente() {
-    if (_pets.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Cadastre um pet primeiro')));
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ServicosClientePage(pets: _pets)),
-    );
-  }
-
-  // AGORA: vai pra lista de pets com agendamento (StatusPetsPage)
-  void _goToStatus() {
-    if (_pets.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Cadastre um pet primeiro')));
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => StatusPetsPage(pets: _pets)),
-    );
-  }
-
-  void _openMenu() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return ListView(
-          padding: const EdgeInsets.all(12),
-          children: [
-            ListTile(
-              leading: const Icon(Icons.pets),
-              title: const Text('Cadastrar pets'),
-              onTap: () {
-                Navigator.pop(context);
-                _goToCadastro();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.miscellaneous_services),
-              title: const Text('Serviços'),
-              onTap: () {
-                Navigator.pop(context);
-                _goToServicosCliente();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.timeline),
-              title: const Text('Status'),
-              onTap: () {
-                Navigator.pop(context);
-                _goToStatus();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // ------- WIDGET DA FOTO DO PET (WEB + MOBILE) -------
   Widget _buildPetImage(Pet pet) {
     if (pet.imagePath.isEmpty) {
       return Container(
@@ -151,14 +83,20 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.yellow,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: _openMenu,
-        ),
+        leading: MainNavMenuButton(pets: _pets),
         title: const Text(
           'Meus Pets',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: _pets.isEmpty
           ? const Center(child: Text('Nenhum pet cadastrado'))

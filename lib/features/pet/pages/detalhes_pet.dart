@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 
 import '../models/pet_model.dart';
 import '../repository/pet_local_repository.dart';
@@ -65,7 +67,7 @@ class _DetalhesPetPageState extends State<DetalhesPetPage> {
     await _repo.update(widget.pet);
 
     setState(() => _editing = false);
-    Navigator.pop(context, true); // informa para recarregar a Home
+    Navigator.pop(context, true);
   }
 
   Future<void> _excluir() async {
@@ -84,6 +86,13 @@ class _DetalhesPetPageState extends State<DetalhesPetPage> {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () => setState(() => _editing = true),
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.black),
+              tooltip: 'Sair',
+              onPressed: () {
+                context.read<AuthController>().logout(context);
+              },
             ),
         ],
       ),

@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ClientePetCard extends StatelessWidget {
-  final String imageUrl;
+  final String imagePath;
   final String nome;
   final String nomeDono;
   final String idade;
@@ -10,7 +11,7 @@ class ClientePetCard extends StatelessWidget {
 
   const ClientePetCard({
     super.key,
-    required this.imageUrl,
+    required this.imagePath,
     required this.nome,
     required this.nomeDono,
     required this.idade,
@@ -27,8 +28,13 @@ class ClientePetCard extends StatelessWidget {
       child: ListTile(
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: (imageUrl.isNotEmpty)
-              ? Image.network(imageUrl, width: 56, height: 56, fit: BoxFit.cover)
+          child: (imagePath.isNotEmpty && File(imagePath).existsSync())
+              ? Image.file(
+            File(imagePath),
+            width: 56,
+            height: 56,
+            fit: BoxFit.cover,
+          )
               : Container(
             width: 56,
             height: 56,

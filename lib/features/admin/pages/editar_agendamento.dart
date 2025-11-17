@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'cards/agendamento_card.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:petshop_pex/features/nav_button.dart';
+import 'package:petshop_pex/features/pet/models/pet_model.dart';
+import 'package:provider/provider.dart';
+import '../cards/agendamento_card.dart';
 
 class EditAgendamentoPage extends StatefulWidget {
   const EditAgendamentoPage({
@@ -19,28 +23,81 @@ class EditAgendamentoPage extends StatefulWidget {
 class _EditAgendamentoPageState extends State<EditAgendamentoPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final _statusOptions = const ['pendente', 'confirmado', 'finalizado', 'cancelado'];
+  final _statusOptions = ['Chegou', 'Em Processo', 'Finalizado'];
+
+  String statusLabelFromRaw(dynamic raw) {
+    if (raw is int) {
+      switch (raw) {
+        case 0:
+          return 'Chegou';
+        case 1:
+          return 'Em Processo';
+        case 2:
+          return 'Finalizado';
+        default:
+          return 'Desconhecido';
+      }
+    }
+    if (raw is String) {
+      if (_statusOptions.contains(raw)) return raw;
+      final n = int.tryParse(raw);
+      if (n != null) return statusLabelFromRaw(n);
+    }
+    return 'Desconhecido';
+  }
+
+  int statusCodeFromLabel(String label) {
+    switch (label) {
+      case 'Chegou':
+        return 0;
+      case 'Em Processo':
+        return 1;
+      case 'Finalizado':
+        return 2;
+      default:
+        return -1;
+    }
+  }
+
+  List<String> servicesFromRaw(dynamic raw) {
+    if (raw is List) {
+      return raw.map((e) => e.toString()).toList();
+    }
+    if (raw is String && raw.isNotEmpty) {
+      return [raw];
+    }
+    return [];
+  }
+
   final _servicoOptions = const [
-    'Banho',
+    'Banho completo',
     'Tosa',
-    'Banho e Tosa',
-    'Tosa Higiênica',
-    'Hidratação',
-    'Consulta Veterinária',
+    'Veterinário',
   ];
 
   late String _status;
   late String _servico;
+  List<Pet> _pets = [];
   final _funcionarioCtrl = TextEditingController();
   final _obsCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _status = (widget.agendamento['status'] ?? 'pendente').toString();
-    _servico = (widget.agendamento['servico'] ?? '').toString();
-    _funcionarioCtrl.text = (widget.agendamento['funcionario'] ?? '').toString();
-    _obsCtrl.text = (widget.agendamento['observacoes'] ?? '').toString();
+
+    _status = statusLabelFromRaw(widget.agendamento['status']);
+    if (!_statusOptions.contains(_status)) {
+      _status = 'pendente';
+    }
+
+    final services = servicesFromRaw(widget.agendamento['services']);
+    final firstService = services.isNotEmpty ? services.first : '';
+    _servico = _servicoOptions.contains(firstService) ? firstService : '';
+
+    _funcionarioCtrl.text =
+        (widget.agendamento['funcionario'] ?? '').toString();
+    _obsCtrl.text =
+        (widget.agendamento['observacoes'] ?? '').toString();
   }
 
   @override
@@ -56,15 +113,14 @@ class _EditAgendamentoPageState extends State<EditAgendamentoPage> {
     if (!cancel && !(_formKey.currentState?.validate() ?? false)) return;
 
     final payload = {
-      'status': _status,
-      'servico': _servico,
+      'status': statusCodeFromLabel(_status),
+      'services': _servico.isEmpty ? [] : [_servico],
       'funcionario': _funcionarioCtrl.text.trim(),
       'observacoes': _obsCtrl.text.trim(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
     if (widget.docId != null) {
-      // Firestore
       await FirebaseFirestore.instance
           .collection('agendamentos')
           .doc(widget.docId)
@@ -74,18 +130,46 @@ class _EditAgendamentoPageState extends State<EditAgendamentoPage> {
     if (mounted) Navigator.pop(context, true);
   }
 
+  String _fmt(DateTime? dt) {
+    if (dt == null) return '—';
+    final d = dt.day.toString().padLeft(2, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final y = dt.year.toString();
+    final h = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '$d/$m/$y $h:$min';
+  }
+
   @override
   Widget build(BuildContext context) {
     final foto = (widget.agendamento['fotoPet'] ?? '').toString();
-    final nomePet = (widget.agendamento['nomePet'] ?? '').toString();
-    final servicoTop = (widget.agendamento['servico'] ?? '').toString();
-    final dataHoraFmt = (widget.agendamento['dataHoraFmt'] ?? '').toString();
-    final statusTop = (widget.agendamento['status'] ?? '').toString();
+    final nomePet = (widget.agendamento['petNome'] ?? '').toString();
+    final services = servicesFromRaw(widget.agendamento['services']);
+    final servicoTop = services.join(', ');
+    final rawDataHora = widget.agendamento['dataHora'];
+    final funcionario = (widget.agendamento['funcionario'] ?? '').toString();
+    final observacoes = (widget.agendamento['observacoes'] ?? '').toString();
+
+    DateTime? dt;
+    if (rawDataHora is Timestamp) dt = rawDataHora.toDate();
+    if (rawDataHora is String) dt = DateTime.tryParse(rawDataHora);
+
+    final statusTop = statusLabelFromRaw(widget.agendamento['status']);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Agendamento'),
         backgroundColor: Colors.yellow,
+        leading: MainNavMenuButton(pets: _pets),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -95,12 +179,13 @@ class _EditAgendamentoPageState extends State<EditAgendamentoPage> {
               foto: foto,
               nomePet: nomePet,
               servico: servicoTop,
-              dataHora: dataHoraFmt,
+              dataHora: _fmt(dt),
               status: statusTop,
+              funcionario: funcionario,
+              observacoes: observacoes,
             ),
             const SizedBox(height: 12),
 
-            // Form
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -116,7 +201,7 @@ class _EditAgendamentoPageState extends State<EditAgendamentoPage> {
                     const Text('Status:', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
-                      value: _status,
+                      value: _statusOptions.contains(_status) ? _status : null,
                       items: _statusOptions
                           .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                           .toList(),
@@ -125,29 +210,34 @@ class _EditAgendamentoPageState extends State<EditAgendamentoPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    const Text('Funcionário Responsável:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Funcionário Responsável:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _funcionarioCtrl,
                       decoration: const InputDecoration(border: OutlineInputBorder()),
-                      validator: (v) => (v == null || v.trim().isEmpty) ? 'Informe o responsável' : null,
+                      validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Informe o responsável' : null,
                     ),
                     const SizedBox(height: 16),
 
-                    const Text('Serviço:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Serviço:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
-                      value: _servico.isEmpty ? null : _servico,
+                      value: _servicoOptions.contains(_servico) ? _servico : null,
                       items: _servicoOptions
                           .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                           .toList(),
                       onChanged: (v) => setState(() => _servico = v ?? _servico),
                       decoration: const InputDecoration(border: OutlineInputBorder()),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Escolha um serviço' : null,
+                      validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Escolha um serviço' : null,
                     ),
                     const SizedBox(height: 16),
 
-                    const Text('Observações:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Observações:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _obsCtrl,

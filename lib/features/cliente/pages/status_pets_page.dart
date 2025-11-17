@@ -4,8 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 
-import '../models/pet_model.dart';
+import '../../pet/models/pet_model.dart';
 import 'status_page.dart';
 
 class StatusPetsPage extends StatefulWidget {
@@ -63,7 +65,6 @@ class _StatusPetsPageState extends State<StatusPetsPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // TIRA O orderBy PRA NÃO PRECISAR DE ÍNDICE COMPOSTO
       final snap = await FirebaseFirestore.instance
           .collection('agendamentos')
           .where('userId', isEqualTo: user.uid)
@@ -77,7 +78,6 @@ class _StatusPetsPageState extends State<StatusPetsPage> {
         return;
       }
 
-      // ordena no cliente pelo campo dataHora (pega o mais recente)
       final docs = snap.docs.toList();
       docs.sort((a, b) {
         final da = (a['dataHora'] as Timestamp?)?.toDate() ?? DateTime(1970);
@@ -147,6 +147,15 @@ class _StatusPetsPageState extends State<StatusPetsPage> {
         backgroundColor: Colors.yellow,
         centerTitle: true,
         title: const Text('Status', style: TextStyle(color: Colors.black)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: petsComAgendamento.isEmpty
           ? const Center(child: Text('Você ainda não tem agendamentos'))

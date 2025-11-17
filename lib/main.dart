@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:petshop_pex/features/admin/home_admin.dart';
-import 'package:petshop_pex/features/admin/visualizar_clientes_pets.dart';
+import 'package:petshop_pex/features/admin/pages/home_admin.dart';
+import 'package:petshop_pex/features/admin/pages/visualizar_clientes_pets.dart';
 import 'package:provider/provider.dart';
 
 import 'features/auth/controller/auth_controller.dart';
@@ -28,7 +28,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
 
-        // 🔹 TEMA GLOBAL (appbar com título centralizado)
         theme: ThemeData(appBarTheme: const AppBarTheme(centerTitle: true)),
 
         // Login é a primeira tela
@@ -40,8 +39,6 @@ class MyApp extends StatelessWidget {
           // ADMIN
           AppRoutes.agendamentosAdmin: (ctx) => const HomeAdmin(),
           AppRoutes.clientesPets: (ctx) => const ClientesPetsPage(),
-
-          // CLIENTE
         },
       ),
     );

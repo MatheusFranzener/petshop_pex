@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 
 import '../models/pet_model.dart';
 import '../repository/pet_local_repository.dart';
@@ -51,7 +53,7 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
       idade: _idade.text.trim(),
       raca: _raca.text.trim(),
       porte: _porte.text.trim(),
-      // foto AGORA é OPCIONAL
+      // foto opcional
       imagePath: _image?.path ?? '',
     );
 
@@ -61,7 +63,7 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
       const SnackBar(content: Text('Pet cadastrado com sucesso!')),
     );
 
-    Navigator.pop(context, true); // sinaliza para atualizar a Home
+    Navigator.pop(context, true);
   }
 
   @override
@@ -70,6 +72,15 @@ class _CadastroPetPageState extends State<CadastroPetPage> {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         title: const Text('Cadastro Pet'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

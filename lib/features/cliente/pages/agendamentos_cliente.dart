@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../models/pet_model.dart';
+import '../../pet/models/pet_model.dart';
 
 class AgendamentosClientePage extends StatefulWidget {
   final Pet pet;
@@ -82,7 +84,6 @@ class _AgendamentosClientePageState extends State<AgendamentosClientePage> {
     final d = _selectedDay!;
     final horario = _selectedSlot!;
 
-    // datetime completo do serviço
     final dataHora = DateTime(
       d.year,
       d.month,
@@ -135,16 +136,19 @@ class _AgendamentosClientePageState extends State<AgendamentosClientePage> {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            // se quiser usar menu aqui depois
-          },
-        ),
         title: const Text(
           'Agendamentos',
           style: TextStyle(color: Colors.black),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

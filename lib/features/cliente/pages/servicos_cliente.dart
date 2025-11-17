@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:petshop_pex/features/auth/controller/auth_controller.dart';
+import 'package:petshop_pex/features/nav_button.dart';
+import 'package:provider/provider.dart';
 
-import '../models/pet_model.dart';
-import 'cadastro_pet.dart';
+import '../../pet/models/pet_model.dart';
 import 'agendamentos_cliente.dart';
-import 'status_pets_page.dart';
 
 class ServicosClientePage extends StatefulWidget {
   final List<Pet> pets;
@@ -19,61 +20,14 @@ class ServicosClientePage extends StatefulWidget {
 
 class _ServicosClientePageState extends State<ServicosClientePage> {
   Pet? _selectedPet;
+  List<Pet> _pets = [];
+
   final Map<String, bool> _selectedServices = {
     'Banho completo': false,
     'Tosa': false,
     'Veterinário': false,
   };
 
-  // ---------- MENU LATERAL (3 RISQUINHOS) ----------
-  void _openMenu() {
-    final parentContext = context;
-
-    showModalBottomSheet(
-      context: parentContext,
-      builder: (sheetContext) {
-        return ListView(
-          padding: const EdgeInsets.all(12),
-          children: [
-            ListTile(
-              leading: const Icon(Icons.pets),
-              title: const Text('Cadastrar pets'),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-
-                await Navigator.push(
-                  parentContext,
-                  MaterialPageRoute(builder: (_) => const CadastroPetPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.miscellaneous_services),
-              title: const Text('Serviços'),
-              onTap: () {
-                Navigator.pop(sheetContext);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.timeline),
-              title: const Text('Status'),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                Navigator.push(
-                  parentContext,
-                  MaterialPageRoute(
-                    builder: (_) => StatusPetsPage(pets: widget.pets),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // ---------- IMAGEM DO PET ----------
   Widget _buildPetImage(Pet? pet) {
     if (pet == null || pet.imagePath.isEmpty || kIsWeb) {
       return Container(
@@ -114,11 +68,17 @@ class _ServicosClientePageState extends State<ServicosClientePage> {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: _openMenu, // <-- AGORA ABRE O MESMO MENU
-        ),
+        leading: MainNavMenuButton(pets: _pets),
         title: const Text('Serviços', style: TextStyle(color: Colors.black)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: 'Sair',
+            onPressed: () {
+              context.read<AuthController>().logout(context);
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
